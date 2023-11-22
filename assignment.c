@@ -13,6 +13,11 @@ struct patient {
     time_t admissionTime;
 };
 
+struct database{
+    struct patient patients[64];
+    int numPatients;
+};
+
 int main(){
 
     return 0;
