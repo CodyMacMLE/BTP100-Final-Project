@@ -24,17 +24,41 @@ struct database add_patient(struct database database);
 void display_patient(struct database database);
 
 int main(){
+    int menuFlag = 1;
+    int menuSelection;
     struct database SouthLake=
-                { { {10, "Edmond Honda", 33, 137, 1.85, "Patient came complaining about pain in his lower abdomen.", 1698160342},
+                {{{10, "Edmond Honda", 33, 137, 1.85, "Patient came complaining about pain in his lower abdomen.", 1698160342},
                 {20, "Chun Li", 28, 62, 1.70, "Patient came complaining about heart palpitations.", 1698430342},
                 {30, "Dhalsim", 41, 48, 1.76, "Patient has had a fever for the past three days.", 1698340342} ,
-                {40, "Ryu", 31, 76, 1.80, "Patient has not had a bowel movement in the past 6 days.", 1698250342}
-                },
-              4 };
+                {40, "Ryu", 31, 76, 1.80, "Patient has not had a bowel movement in the past 6 days.", 1698250342}},
+                  4};
 
-    SouthLake = add_patient(SouthLake);
+    printf("------------------------------------------\n");
+    printf("Welcome to the Southlake Hospital Database\n");
+    do {
+        // Printing Menu + User Input
+        printf("------------------------------------------\n");
+        printf("1) Add a Patient\n2) Display a Patient\n3) Close Database\nEnter Option: ");
+        scanf("%d", &menuSelection);
+        while(getchar() != '\n');
+        printf("------------------------------------------\n");
 
-    display_patient(SouthLake);
+        // Menu Options
+        switch (menuSelection) {
+            case 1:
+                SouthLake = add_patient(SouthLake);
+                break;
+            case 2:
+                display_patient(SouthLake);
+                break;
+            case 3:
+                printf("Closing Southlake Database");
+                menuFlag = 0;
+                break;
+            default:
+                printf("Error: Not a Valid Option (Please Enter an Integer)\n");
+        }
+    } while(menuFlag);
 
     return 0;
 }
@@ -103,5 +127,5 @@ void display_patient(struct database database){
     printf("Patient Weight (Kg): %.2f\n", database.patients[patientIndex].weightKG);
     printf("Patient Height (m): %.2f\n", database.patients[patientIndex].heightM);
     printf("Patient Notes: %s\n", database.patients[patientIndex].notes);
-    printf("Patient Admittance Time: %s\n", ctime(&database.patients[patientIndex].admissionTime));
+    printf("Patient Admittance Time: %s", ctime(&database.patients[patientIndex].admissionTime));
 }
