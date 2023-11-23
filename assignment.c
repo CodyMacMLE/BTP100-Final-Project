@@ -64,41 +64,47 @@ int main(){
 }
 
 struct database add_patient(struct database database){
-    // Adding ID
-    printf("Patient ID: ");
-    scanf("%d", &database.patients[database.numPatients].ID);
-    while(getchar() != '\n'); // Buffer Clear
 
-    // Adding Full Name
-    printf("Patient Full Name: ");
-    scanf(" %[^\n]", &database.patients[database.numPatients].fullName[0]);
-    while(getchar() != '\n'); // Buffer Clear
+    if (database.numPatients < 64){
+        // Adding ID
+        printf("Patient ID: ");
+        scanf("%d", &database.patients[database.numPatients].ID);
+        while(getchar() != '\n'); // Buffer Clear
 
-    // Adding Age
-    printf("Patient Age: ");
-    scanf("%d", &database.patients[database.numPatients].age);
-    while(getchar() != '\n'); // Buffer Clear
+        // Adding Full Name
+        printf("Patient Full Name: ");
+        scanf(" %[^\n]", &database.patients[database.numPatients].fullName[0]);
+        while(getchar() != '\n'); // Buffer Clear
 
-    // Adding Weight (Kg)
-    printf("Patient Weight (Kg): ");
-    scanf("%f", &database.patients[database.numPatients].weightKG);
-    while(getchar() != '\n'); // Buffer Clear
+        // Adding Age
+        printf("Patient Age: ");
+        scanf("%d", &database.patients[database.numPatients].age);
+        while(getchar() != '\n'); // Buffer Clear
 
-    // Adding Height (m)
-    printf("Patient Height (m): ");
-    scanf("%f", &database.patients[database.numPatients].heightM);
-    while(getchar() != '\n'); // Buffer Clear
+        // Adding Weight (Kg)
+        printf("Patient Weight (Kg): ");
+        scanf("%f", &database.patients[database.numPatients].weightKG);
+        while(getchar() != '\n'); // Buffer Clear
 
-    // Adding Notes
-    printf("Patient Notes: ");
-    scanf(" %[^\n]", &database.patients[database.numPatients].notes[0]);
-    while(getchar() != '\n'); // Buffer Clear
+        // Adding Height (m)
+        printf("Patient Height (m): ");
+        scanf("%f", &database.patients[database.numPatients].heightM);
+        while(getchar() != '\n'); // Buffer Clear
 
-    // Adding Admittance Time
-    database.patients[database.numPatients].admissionTime = time(NULL); // Stores a time (seconds?) but not in a readable format
+        // Adding Notes
+        printf("Patient Notes: ");
+        scanf(" %[^\n]", &database.patients[database.numPatients].notes[0]);
+        while(getchar() != '\n'); // Buffer Clear
 
-    // Incrementing number of patients in database
-    database.numPatients++;
+        // Adding Admittance Time
+        database.patients[database.numPatients].admissionTime = time(NULL); // Stores a time (seconds?) but not in a readable format
+
+        // Incrementing number of patients in database
+        database.numPatients++;
+    }
+    else {
+        printf("Error: Database has reached max size\n");
+    }
 
     return database;
 }
