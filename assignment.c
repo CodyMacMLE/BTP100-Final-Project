@@ -22,6 +22,8 @@ struct database{
 //Function Prototypes
 struct database add_patient(struct database database);
 void display_patient(struct database database);
+int check_ID(int patientID, struct database database);
+int get_Patient_Index(int patientID, struct database database);
 
 int main(){
     int menuFlag = 1;
@@ -112,26 +114,48 @@ struct database add_patient(struct database database){
 void display_patient(struct database database){
     int patientID;
     int patientIndex;
+    int checkIDflag = 0;
 
     // Asking user what patient ID
     printf("Enter Patient ID: ");
     scanf("%d", &patientID);
     while(getchar() != '\n'); // Buffer Clear
 
-    // Iterating through patient IDs in database until match and saving index in PatientIndex
+    // Using Check_ID to see if ID exists
+    checkIDflag = check_ID(patientID, database);
+    if(checkIDflag == 1){ // If ID exists
+        // Translating ID to Index
+        patientIndex = get_Patient_Index(patientID, database);
+        // Displaying Patient
+        printf("Patient Information\n");
+        printf("Patient ID: %d\n", database.patients[patientIndex].ID);
+        printf("Patient Name: %s\n", database.patients[patientIndex].fullName);
+        printf("Patient Age: %d\n", database.patients[patientIndex].age);
+        printf("Patient Weight (Kg): %.2f\n", database.patients[patientIndex].weightKG);
+        printf("Patient Height (m): %.2f\n", database.patients[patientIndex].heightM);
+        printf("Patient Notes: %s\n", database.patients[patientIndex].notes);
+        printf("Patient Admittance Time: %s", ctime(&database.patients[patientIndex].admissionTime));
+    } else { // If ID does not exist
+        printf("Error: Patient does not exist with ID %d\n", patientID);
+    }
+}
+
+int check_ID(int patientID, struct database database){
+    int flag = 0;
+    for (int i = 0; i < database.numPatients; i++) {
+        if(patientID == database.patients[i].ID){
+            flag = 1;
+        }
+    }
+    return flag;
+}
+
+int get_Patient_Index(int patientID, struct database database){
+    int patientIndex;
     for (int i = 0; i < database.numPatients; i++) {
         if(patientID == database.patients[i].ID){
             patientIndex = i;
         }
     }
-
-    // Displaying Patient
-    printf("Patient Information\n");
-    printf("Patient ID: %d\n", database.patients[patientIndex].ID);
-    printf("Patient Name: %s\n", database.patients[patientIndex].fullName);
-    printf("Patient Age: %d\n", database.patients[patientIndex].age);
-    printf("Patient Weight (Kg): %.2f\n", database.patients[patientIndex].weightKG);
-    printf("Patient Height (m): %.2f\n", database.patients[patientIndex].heightM);
-    printf("Patient Notes: %s\n", database.patients[patientIndex].notes);
-    printf("Patient Admittance Time: %s", ctime(&database.patients[patientIndex].admissionTime));
+    return patientIndex;
 }
