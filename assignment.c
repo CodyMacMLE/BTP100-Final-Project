@@ -73,12 +73,12 @@ struct database add_patient(struct database database){
             printf("Patient ID: ");
             scanf("%d", &database.patients[database.numPatients].ID);
             while(getchar() != '\n'); // Buffer Clear
-            checkIDflag = check_ID(database.patients[database.numPatients].ID, database);
+            checkIDflag = check_ID(database.patients[database.numPatients].ID, database); // Checking if ID exists
             if (checkIDflag == 1){
                 printf("Error: Another patient has inputted ID\n");
             }
 
-        } while (checkIDflag == 1);
+        } while (checkIDflag == 1); // Exits when unique ID has been entered
 
         // Adding Full Name
         printf("Patient Full Name: ");
