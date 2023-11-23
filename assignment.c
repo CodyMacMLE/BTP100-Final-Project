@@ -66,12 +66,19 @@ int main(){
 }
 
 struct database add_patient(struct database database){
-
+    int checkIDflag = 1;
     if (database.numPatients < 64){
         // Adding ID
-        printf("Patient ID: ");
-        scanf("%d", &database.patients[database.numPatients].ID);
-        while(getchar() != '\n'); // Buffer Clear
+        do {
+            printf("Patient ID: ");
+            scanf("%d", &database.patients[database.numPatients].ID);
+            while(getchar() != '\n'); // Buffer Clear
+            checkIDflag = check_ID(database.patients[database.numPatients].ID, database);
+            if (checkIDflag == 1){
+                printf("Error: Another patient has inputted ID\n");
+            }
+
+        } while (checkIDflag == 1);
 
         // Adding Full Name
         printf("Patient Full Name: ");
