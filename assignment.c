@@ -3,6 +3,7 @@
 //
 #include <stdio.h>
 #include <time.h>
+#include <string.h>
 
 struct patient {
     int ID;
@@ -24,6 +25,7 @@ struct database add_patient(struct database database);
 void display_patient(struct database database);
 int check_ID(int patientID, struct database database);
 int get_Patient_Index(int patientID, struct database database);
+struct database add_notes(struct database database);
 
 int main(){
     int menuFlag = 1;
@@ -40,7 +42,7 @@ int main(){
     do {
         // Printing Menu + User Input
         printf("------------------------------------------\n");
-        printf("1) Add a Patient\n2) Display a Patient\n3) Close Database\nEnter Option: ");
+        printf("1) Add a Patient\n2) Display a Patient\n3) Add Patient Note\n4) Close Database\nEnter Option: ");
         scanf("%d", &menuSelection);
         while(getchar() != '\n');
         printf("------------------------------------------\n");
@@ -54,6 +56,9 @@ int main(){
                 display_patient(SouthLake);
                 break;
             case 3:
+                SouthLake = add_notes(SouthLake);
+                break;
+            case 4:
                 printf("Closing Southlake Database");
                 menuFlag = 0;
                 break;
@@ -165,4 +170,26 @@ int get_Patient_Index(int patientID, struct database database){
         }
     }
     return patientIndex;
+}
+
+struct database add_notes(struct database database){
+    int patientID;
+    char tempNote[128] = "; ";
+
+    printf("Enter Patient ID: ");
+    scanf("%d", &patientID); // Receiving Patient ID
+    while(getchar() != '\n'); // Clearing Buffer
+
+    if(check_ID(patientID, database)){
+        int patientIndex = get_Patient_Index(patientID, database);
+        strcat(database.patients[patientIndex].notes, tempNote);
+        printf("Enter Patient Note: ");
+        scanf(" %[^\n]", tempNote);
+        strcat(database.patients[patientIndex].notes, tempNote);
+
+    } else {
+        printf("Patient does not exist with ID of %d\n", patientID);
+    }
+
+    return database;
 }
