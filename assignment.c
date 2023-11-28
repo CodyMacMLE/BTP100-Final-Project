@@ -23,9 +23,10 @@ struct database{
 //Function Prototypes
 struct database add_patient(struct database database);
 void display_patient(struct database database);
-int check_ID(int patientID, struct database database);
+int check_ID(int patientID, struct database database); // flag: 1 if retrieved, 0 if failed
 int get_Patient_Index(int patientID, struct database database);
 struct database add_notes(struct database database);
+int save_database(struct database database, const char file_name[]); // flag: 1 if retrieved, 0 if failed
 
 int main(){
     int menuFlag = 1;
@@ -42,7 +43,7 @@ int main(){
     do {
         // Printing Menu + User Input
         printf("------------------------------------------\n");
-        printf("1) Add a Patient\n2) Display a Patient\n3) Add Patient Note\n4) Close Database\nEnter Option: ");
+        printf("1) Add a Patient\n2) Display a Patient\n3) Add Patient Note\n4) Save Database\n5) Close Database\nEnter Option: ");
         scanf("%d", &menuSelection);
         while(getchar() != '\n');
         printf("------------------------------------------\n");
@@ -59,6 +60,9 @@ int main(){
                 SouthLake = add_notes(SouthLake);
                 break;
             case 4:
+                save_database(SouthLake, "southlake.csv");
+                break;
+            case 5:
                 printf("Closing Southlake Database");
                 menuFlag = 0;
                 break;
@@ -192,4 +196,28 @@ struct database add_notes(struct database database){
     }
 
     return database;
+}
+
+int save_database(struct database database, const char file_name[]){
+    int flag = 0;
+    FILE *pF = NULL;
+    pF = fopen(file_name, "w");
+    if(pF != NULL){
+        fprintf(pF, "%d\n", database.numPatients);
+        for (int i = 0; i < database.numPatients; ++i) {
+            fprintf(pF, "%d,%s,%d,%f,%f,%s,%ld\n",
+                database.patients[i].ID,
+                database.patients[i].fullName,
+                database.patients[i].age,
+                database.patients[i].weightKG,
+                database.patients[i].heightM,
+                database.patients[i].notes,
+                database.patients[i].admissionTime);
+        }
+        fclose(pF);
+        flag = 1;
+    } else {
+        flag = 0;
+    }
+    return flag;
 }
