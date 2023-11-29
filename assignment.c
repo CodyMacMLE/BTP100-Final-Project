@@ -27,23 +27,28 @@ int check_ID(int patientID, struct database database); // flag: 1 if retrieved, 
 int get_Patient_Index(int patientID, struct database database);
 struct database add_notes(struct database database);
 int save_database(struct database database, const char file_name[]); // flag: 1 if retrieved, 0 if failed
+int retrieve_database(struct database *database, const char file_name[]); // flag: 1 if retrieved, 0 if failed
 
 int main(){
     int menuFlag = 1;
     int menuSelection;
+    int saveFlag;
+    int retrieveFlag;
+    struct database SouthLake;
+    /*
     struct database SouthLake=
                 {{{10, "Edmond Honda", 33, 137, 1.85, "Patient came complaining about pain in his lower abdomen.", 1698160342},
                 {20, "Chun Li", 28, 62, 1.70, "Patient came complaining about heart palpitations.", 1698430342},
                 {30, "Dhalsim", 41, 48, 1.76, "Patient has had a fever for the past three days.", 1698340342} ,
                 {40, "Ryu", 31, 76, 1.80, "Patient has not had a bowel movement in the past 6 days.", 1698250342}},
                   4};
-
+    */
     printf("------------------------------------------\n");
     printf("Welcome to the Southlake Hospital Database\n");
     do {
         // Printing Menu + User Input
         printf("------------------------------------------\n");
-        printf("1) Add a Patient\n2) Display a Patient\n3) Add Patient Note\n4) Save Database\n5) Close Database\nEnter Option: ");
+        printf("1) Add a Patient\n2) Display a Patient\n3) Add Patient Note\n4) Retrieve Database\n5) Save Database\n6) Close Database\nEnter Option: ");
         scanf("%d", &menuSelection);
         while(getchar() != '\n');
         printf("------------------------------------------\n");
@@ -60,9 +65,22 @@ int main(){
                 SouthLake = add_notes(SouthLake);
                 break;
             case 4:
-                save_database(SouthLake, "southlake.csv");
+                retrieveFlag = retrieve_database(&SouthLake, "southlake.csv");
+                if(retrieveFlag){
+                    printf("Database successfully retrieved\n");
+                } else {
+                    printf("Error: Database could not be retrieved\n");
+                }
                 break;
             case 5:
+                saveFlag = save_database(SouthLake, "southlake.csv");
+                if(saveFlag){
+                    printf("Database saved successfully\n");
+                } else {
+                    printf("Error: Database could not be saved\n");
+                }
+                break;
+            case 6:
                 printf("Closing Southlake Database");
                 menuFlag = 0;
                 break;
@@ -219,5 +237,29 @@ int save_database(struct database database, const char file_name[]){
     } else {
         flag = 0;
     }
+    return flag;
+}
+
+int retrieve_database(struct database *database, const char file_name[]){
+    int i = 0;
+    int flag = 0;
+    FILE *pF = NULL;
+    pF = fopen(file_name,"r");
+    if (pF != NULL) {
+        fscanf(pF, "%d\n", &database->numPatients);
+        while (fscanf(pF, "%d,%[^,],%d,%f,%f,%[^,],%ld\n",
+                      &database->patients[i].ID,
+                      database->patients[i].fullName,
+                      &database->patients[i].age,
+                      &database->patients[i].weightKG,
+                      &database->patients[i].heightM,
+                      database->patients[i].notes,
+                      &database->patients[i].admissionTime) != EOF)
+        {
+            i++;
+        }
+        flag = 1;
+    }
+    fclose(pF);
     return flag;
 }
