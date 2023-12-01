@@ -21,6 +21,7 @@ struct database{
 };
 
 //Function Prototypes
+void clear_buffer();
 struct database add_patient(struct database database);
 void display_patient(struct database database);
 int check_ID(int patientID, struct database database); // flag: 1 if retrieved, 0 if failed
@@ -50,7 +51,7 @@ int main(){
         printf("------------------------------------------\n");
         printf("1) Add a Patient\n2) Display a Patient\n3) Add Patient Note\n4) Retrieve Database\n5) Save Database\n6) Close Database\nEnter Option: ");
         scanf("%d", &menuSelection);
-        while(getchar() != '\n');
+        clear_buffer();
         printf("------------------------------------------\n");
 
         // Menu Options
@@ -99,7 +100,7 @@ struct database add_patient(struct database database){
         do {
             printf("Patient ID: ");
             scanf("%d", &database.patients[database.numPatients].ID);
-            while(getchar() != '\n'); // Buffer Clear
+            clear_buffer(); // Buffer Clear
             checkIDflag = check_ID(database.patients[database.numPatients].ID, database); // Checking if ID exists
             if (checkIDflag == 1){
                 printf("Error: Another patient has inputted ID\n");
@@ -110,27 +111,27 @@ struct database add_patient(struct database database){
         // Adding Full Name
         printf("Patient Full Name: ");
         scanf(" %[^\n]", &database.patients[database.numPatients].fullName[0]);
-        while(getchar() != '\n'); // Buffer Clear
+        clear_buffer();
 
         // Adding Age
         printf("Patient Age: ");
         scanf("%d", &database.patients[database.numPatients].age);
-        while(getchar() != '\n'); // Buffer Clear
+        clear_buffer();
 
         // Adding Weight (Kg)
         printf("Patient Weight (Kg): ");
         scanf("%f", &database.patients[database.numPatients].weightKG);
-        while(getchar() != '\n'); // Buffer Clear
+        clear_buffer();
 
         // Adding Height (m)
         printf("Patient Height (m): ");
         scanf("%f", &database.patients[database.numPatients].heightM);
-        while(getchar() != '\n'); // Buffer Clear
+        clear_buffer();
 
         // Adding Notes
         printf("Patient Notes: ");
         scanf(" %[^\n]", &database.patients[database.numPatients].notes[0]);
-        while(getchar() != '\n'); // Buffer Clear
+        clear_buffer();
 
         // Adding Admittance Time
         database.patients[database.numPatients].admissionTime = time(NULL); // Stores a time (seconds?) but not in a readable format
@@ -153,7 +154,7 @@ void display_patient(struct database database){
     // Asking user what patient ID
     printf("Enter Patient ID: ");
     scanf("%d", &patientID);
-    while(getchar() != '\n'); // Buffer Clear
+    clear_buffer();
 
     // Using Check_ID to see if ID exists
     checkIDflag = check_ID(patientID, database);
@@ -200,13 +201,14 @@ struct database add_notes(struct database database){
 
     printf("Enter Patient ID: ");
     scanf("%d", &patientID); // Receiving Patient ID
-    while(getchar() != '\n'); // Clearing Buffer
+    clear_buffer();
 
     if(check_ID(patientID, database)){
         int patientIndex = get_Patient_Index(patientID, database);
         strcat(database.patients[patientIndex].notes, tempNote);
         printf("Enter Patient Note: ");
         scanf(" %[^\n]", tempNote);
+        clear_buffer();
         strcat(database.patients[patientIndex].notes, tempNote);
 
     } else {
@@ -247,6 +249,7 @@ int retrieve_database(struct database *database, const char file_name[]){
     pF = fopen(file_name,"r");
     if (pF != NULL) {
         fscanf(pF, "%d\n", &database->numPatients);
+        clear_buffer();
         while (fscanf(pF, "%d,%[^,],%d,%f,%f,%[^,],%ld\n",
                       &database->patients[i].ID,
                       database->patients[i].fullName,
@@ -256,10 +259,15 @@ int retrieve_database(struct database *database, const char file_name[]){
                       database->patients[i].notes,
                       &database->patients[i].admissionTime) != EOF)
         {
+            clear_buffer();
             i++;
         }
         flag = 1;
     }
     fclose(pF);
     return flag;
+}
+
+void clear_buffer(){
+    while (getchar() != '\n');
 }
