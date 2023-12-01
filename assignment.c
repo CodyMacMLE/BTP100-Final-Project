@@ -249,7 +249,6 @@ int retrieve_database(struct database *database, const char file_name[]){
     pF = fopen(file_name,"r");
     if (pF != NULL) {
         fscanf(pF, "%d\n", &database->numPatients);
-        clear_buffer();
         while (fscanf(pF, "%d,%[^,],%d,%f,%f,%[^,],%ld\n",
                       &database->patients[i].ID,
                       database->patients[i].fullName,
@@ -259,7 +258,6 @@ int retrieve_database(struct database *database, const char file_name[]){
                       database->patients[i].notes,
                       &database->patients[i].admissionTime) != EOF)
         {
-            clear_buffer();
             i++;
         }
         flag = 1;
