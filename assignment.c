@@ -30,6 +30,8 @@ struct database add_notes(struct database database);
 int save_database(struct database database, const char file_name[]); // flag: 1 if saved, 0 if failed
 int retrieve_database(struct database *database, const char file_name[]); // flag: 1 if retrieved, 0 if failed
 int remove_patient(struct database *database); // flag: 1 if removed, 0 if failed
+void display_patients_by_admission_date(struct database database);
+void print_patient(struct database database, int index);
 
 int main(){
     int menuFlag = 1;
@@ -51,8 +53,11 @@ int main(){
     do {
         // Printing Menu + User Input
         printf("------------------------------------------\n");
-        printf("1) Add a Patient\n2) Display a Patient\n3) Add Patient Note\n4) Remove Patient\n5) Retrieve Database\n"
-               "6) Save Database\n7) Close Database\nEnter Option: ");
+        printf("1) Add a Patient\n2) Display a Patient\n"
+               "3) Add Patient Note\n4) Remove Patient\n"
+               "5) Sort & Display by Admission Time\n6) Retrieve Database\n"
+               "7) Save Database\n7) Close Database\n"
+               "Enter Option: ");
         scanf("%d", &menuSelection);
         clear_buffer();
         printf("------------------------------------------\n");
@@ -75,6 +80,9 @@ int main(){
                 }
                 break;
             case 5:
+                display_patients_by_admission_date(SouthLake);
+                break;
+            case 6:
                 retrieveFlag = retrieve_database(&SouthLake, "southlake.csv");
                 if(retrieveFlag){
                     printf("Database successfully retrieved\n");
@@ -82,7 +90,7 @@ int main(){
                     printf("Error: Database could not be retrieved\n");
                 }
                 break;
-            case 6:
+            case 7:
                 saveFlag = save_database(SouthLake, "southlake.csv");
                 if(saveFlag){
                     printf("Database saved successfully\n");
@@ -90,7 +98,7 @@ int main(){
                     printf("Error: Database could not be saved\n");
                 }
                 break;
-            case 7:
+            case 8:
                 printf("Closing Southlake Database");
                 menuFlag = 0;
                 break;
@@ -171,14 +179,7 @@ void display_patient(struct database database){
         // Translating ID to Index
         patientIndex = get_Patient_Index(patientID, database);
         // Displaying Patient
-        printf("Patient Information\n");
-        printf("Patient ID: %d\n", database.patients[patientIndex].ID);
-        printf("Patient Name: %s\n", database.patients[patientIndex].fullName);
-        printf("Patient Age: %d\n", database.patients[patientIndex].age);
-        printf("Patient Weight (Kg): %.2f\n", database.patients[patientIndex].weightKG);
-        printf("Patient Height (m): %.2f\n", database.patients[patientIndex].heightM);
-        printf("Patient Notes: %s\n", database.patients[patientIndex].notes);
-        printf("Patient Admittance Time: %s", ctime(&database.patients[patientIndex].admissionTime));
+        print_patient(database, patientIndex);
     } else { // If ID does not exist
         printf("Error: Patient does not exist with ID %d\n", patientID);
     }
@@ -322,4 +323,68 @@ int remove_patient(struct database *database){
         printf("Error: Patient with id %d does not exist\n", patientID);
     }
     return flag;
+}
+
+void display_patients_by_admission_date(struct database database){
+    struct patient temp;
+
+    // Bubble Sort
+    for (int i = 0; i < database.numPatients; ++i) {
+        // Checking if left is greater than right index
+        for (int j = 0; j < (database.numPatients - 1); ++j) {
+            if (database.patients[j].admissionTime > database.patients[j + 1].admissionTime) {
+                // Moving greater to temp
+                temp.ID = database.patients[j].ID;
+                memset(temp.fullName,0, strlen(temp.fullName));
+                strcpy(temp.fullName,database.patients[j].fullName);
+                temp.age = database.patients[j].age;
+                temp.weightKG = database.patients[j].weightKG;
+                temp.heightM = database.patients[j].heightM;
+                memset(temp.notes,0, strlen(temp.notes));
+                strcpy(temp.notes,database.patients[j].notes);
+                temp.admissionTime = database.patients[j].admissionTime;
+
+                // Moving less than into left index
+                database.patients[j].ID = database.patients[j + 1].ID;
+                memset(database.patients[j].fullName,0, strlen(database.patients[j].fullName));
+                strcpy(database.patients[j].fullName, database.patients[j + 1].fullName);
+                database.patients[j].age = database.patients[j + 1].age;
+                database.patients[j].weightKG = database.patients[j + 1].weightKG;
+                database.patients[j].heightM = database.patients[j + 1].heightM;
+                memset(database.patients[j].notes,0, strlen(database.patients[j].notes));
+                strcpy(database.patients[j].notes, database.patients[j + 1].notes);
+                database.patients[j].admissionTime = database.patients[j + 1].admissionTime;
+
+                // Moving greater than from temp into right index
+                database.patients[j + 1].ID = temp.ID;
+                memset(database.patients[j + 1].fullName,0, strlen(database.patients[j + 1].fullName));
+                strcpy(database.patients[j + 1].fullName,temp.fullName);
+                database.patients[j + 1].age = temp.age;
+                database.patients[j + 1].weightKG = temp.weightKG;
+                database.patients[j + 1].heightM = temp.heightM;
+                memset(database.patients[j + 1].notes,0, strlen(database.patients[j + 1].notes));
+                strcpy(database.patients[j + 1].notes,temp.notes);
+                database.patients[j + 1].admissionTime = temp.admissionTime;
+            }
+        }
+    }
+
+    // Displaying patients from earliest admission time to latest
+    for (int i = 0; i < database.numPatients; ++i) {
+        // Displaying Patient
+        print_patient(database, i);
+    }
+}
+
+void print_patient(struct database database, int index){
+    printf("----------\n");
+    printf("Patient %d\n", index + 1);
+    printf("----------\n");
+    printf("Patient ID: %d\n", database.patients[index].ID);
+    printf("Patient Name: %s\n", database.patients[index].fullName);
+    printf("Patient Age: %d\n", database.patients[index].age);
+    printf("Patient Weight (Kg): %.2f\n", database.patients[index].weightKG);
+    printf("Patient Height (m): %.2f\n", database.patients[index].heightM);
+    printf("Patient Notes: %s\n", database.patients[index].notes);
+    printf("Patient Admittance Time: %s", ctime(&database.patients[index].admissionTime));
 }
