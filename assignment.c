@@ -27,29 +27,32 @@ void display_patient(struct database database);
 int check_ID(int patientID, struct database database); // flag: 1 if retrieved, 0 if failed
 int get_Patient_Index(int patientID, struct database database);
 struct database add_notes(struct database database);
-int save_database(struct database database, const char file_name[]); // flag: 1 if retrieved, 0 if failed
+int save_database(struct database database, const char file_name[]); // flag: 1 if saved, 0 if failed
 int retrieve_database(struct database *database, const char file_name[]); // flag: 1 if retrieved, 0 if failed
+int remove_patient(struct database *database); // flag: 1 if removed, 0 if failed
 
 int main(){
     int menuFlag = 1;
     int menuSelection;
     int saveFlag;
     int retrieveFlag;
-    struct database SouthLake;
-    /*
+    int deleteFlag;
+    //struct database SouthLake;
+
     struct database SouthLake=
-                {{{10, "Edmond Honda", 33, 137, 1.85, "Patient came complaining about pain in his lower abdomen.", 1698160342},
-                {20, "Chun Li", 28, 62, 1.70, "Patient came complaining about heart palpitations.", 1698430342},
-                {30, "Dhalsim", 41, 48, 1.76, "Patient has had a fever for the past three days.", 1698340342} ,
-                {40, "Ryu", 31, 76, 1.80, "Patient has not had a bowel movement in the past 6 days.", 1698250342}},
+                {{  {10, "Edmond Honda", 33, 137, 1.85, "Patient came complaining about pain in his lower abdomen.", 1698160342},
+                            {20, "Chun Li", 28, 62, 1.70, "Patient came complaining about heart palpitations.", 1698430342},
+                            {30, "Dhalsim", 41, 48, 1.76, "Patient has had a fever for the past three days.", 1698340342} ,
+                            {40, "Ryu", 31, 76, 1.80, "Patient has not had a bowel movement in the past 6 days.", 1698250342}},
                   4};
-    */
+
     printf("------------------------------------------\n");
     printf("Welcome to the Southlake Hospital Database\n");
     do {
         // Printing Menu + User Input
         printf("------------------------------------------\n");
-        printf("1) Add a Patient\n2) Display a Patient\n3) Add Patient Note\n4) Retrieve Database\n5) Save Database\n6) Close Database\nEnter Option: ");
+        printf("1) Add a Patient\n2) Display a Patient\n3) Add Patient Note\n4) Remove Patient\n5) Retrieve Database\n"
+               "6) Save Database\n7) Close Database\nEnter Option: ");
         scanf("%d", &menuSelection);
         clear_buffer();
         printf("------------------------------------------\n");
@@ -66,6 +69,12 @@ int main(){
                 SouthLake = add_notes(SouthLake);
                 break;
             case 4:
+                deleteFlag = remove_patient(&SouthLake);
+                if(deleteFlag){
+                    printf("Patient successfully deleted\n");
+                }
+                break;
+            case 5:
                 retrieveFlag = retrieve_database(&SouthLake, "southlake.csv");
                 if(retrieveFlag){
                     printf("Database successfully retrieved\n");
@@ -73,7 +82,7 @@ int main(){
                     printf("Error: Database could not be retrieved\n");
                 }
                 break;
-            case 5:
+            case 6:
                 saveFlag = save_database(SouthLake, "southlake.csv");
                 if(saveFlag){
                     printf("Database saved successfully\n");
@@ -81,7 +90,7 @@ int main(){
                     printf("Error: Database could not be saved\n");
                 }
                 break;
-            case 6:
+            case 7:
                 printf("Closing Southlake Database");
                 menuFlag = 0;
                 break;
@@ -242,7 +251,7 @@ int save_database(struct database database, const char file_name[]){
     return flag;
 }
 
-int retrieve_database(struct database *database, const char file_name[]){
+int retrieve_database(struct database *database, const char file_name[]) {
     int i = 0;
     int flag = 0;
     FILE *pF = NULL;
@@ -268,4 +277,49 @@ int retrieve_database(struct database *database, const char file_name[]){
 
 void clear_buffer(){
     while (getchar() != '\n');
+}
+
+int remove_patient(struct database *database){
+    int flag = 0;
+    int patientID;
+    int patientIndex;
+
+    printf("Enter Patient ID: ");
+    scanf("%d", &patientID);
+    clear_buffer();
+
+    if(check_ID(patientID, *database)){
+        patientIndex = get_Patient_Index(patientID, *database);
+
+        // Starting at Patient index move (patient index++) into patient index
+        for (int i = patientIndex; i < (database->numPatients - 1); ++i) {
+            database->patients[i].ID = database->patients[i+1].ID;
+            memset(database->patients[i].fullName,0,strlen(database->patients[i].fullName));
+            strcpy(database->patients[i].fullName, database->patients[i+1].fullName);
+            database->patients[i].age = database->patients[i+1].age;
+            database->patients[i].weightKG = database->patients[i+1].weightKG;
+            database->patients[i].heightM = database->patients[i+1].heightM;
+            memset(database->patients[i].notes,0,strlen(database->patients[i].notes));
+            strcpy(database->patients[i].notes, database->patients[i+1].notes);
+            database->patients[i].admissionTime = database->patients[i+1].admissionTime;
+        }
+
+        // Updating numPatients
+        database->numPatients--;
+
+        // Clearing Last Index
+        database->patients[database->numPatients].ID = 0;
+        memset(database->patients[database->numPatients].fullName,0, strlen(database->patients[database->numPatients].fullName));
+        database->patients[database->numPatients].age = 0;
+        database->patients[database->numPatients].weightKG = 0;
+        database->patients[database->numPatients].heightM = 0;
+        memset(database->patients[database->numPatients].notes,0, strlen(database->patients[database->numPatients].notes));
+        database->patients[database->numPatients].admissionTime = 0;
+
+        flag = 1;
+    }
+    else {
+        printf("Error: Patient with id %d does not exist\n", patientID);
+    }
+    return flag;
 }
